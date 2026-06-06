@@ -1,0 +1,10 @@
+{
+  "name": "TimeMate",
+  "description": "Your Smart Daily Companion - a personal productivity assistant, smart timetable manager, and reminder system.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

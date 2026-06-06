@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TimeMate — Your Smart Daily Companion</title>
+    <script>
+      // Gracefully silent benign Vite HMR WebSocket connection warnings in sandboxed preview
+      (function() {
+        const NativeWebSocket = window.WebSocket;
+        if (!NativeWebSocket) return;
+
+        class QuietWebSocket extends EventTarget {
+          constructor(url, protocols) {
+            const urlStr = String(url || '');
+            if (urlStr.includes('vite') || urlStr.includes('hmr') || urlStr.includes(window.location.host)) {
+              super();
+              this.url = urlStr;
+              this.readyState = 3; // CLOSED
+              this.bufferedAmount = 0;
+              this.extensions = "";
+              this.protocol = "";
+              this.binaryType = "blob";
+              this.onopen = null;
+              this.onclose = null;
+              this.onerror = null;
+              this.onmessage = null;
+              
+              queueMicrotask(() => {
+                const event = new Event('close');
+                Object.defineProperties(event, {
+                  wasClean: { value: true },
+                  code: { value: 1000 },
+                  reason: { value: "HMR Closed Quietly" }
+                });
+                if (typeof this.onclose === 'function') {
+                  try { this.onclose(event); } catch (e) {}
+                }
+                this.dispatchEvent(event);
+              });
+              return;
+            }
+            return new NativeWebSocket(url, protocols);
+          }
+          send(data) {}
+          close(code, reason) {
+            this.readyState = 3;
+          }
+        }
+
+        const constants = ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'];
+        constants.forEach((k, v) => {
+          QuietWebSocket[k] = v;
+          QuietWebSocket.prototype[k] = v;
+          if (NativeWebSocket[k] !== undefined) {
+            QuietWebSocket[k] = NativeWebSocket[k];
+            QuietWebSocket.prototype[k] = NativeWebSocket[k];
+          }
+        });
+
+        window.WebSocket = QuietWebSocket;
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
